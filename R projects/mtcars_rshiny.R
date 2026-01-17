@@ -87,7 +87,8 @@ shinyApp(ui = ui, server = server)
 
 ### attempt successful. now to understand pulling. made this chage to see if I can pull the file to see this change. goodluck to me!
 
-
+### Excellent, pull worked. I am slowly getting a hang of this. now, push this new lines in and then we want to make a change in git online.
+### afterwards, I want to understand the push as a patch part. Good luck.
 
 
 
