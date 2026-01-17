@@ -85,8 +85,7 @@ shinyApp(ui = ui, server = server)
 ### first push was commited. here is a new version with this comment added. to attempt another push to understand versions and control.
 ### first attempt didnt work, I think. 2nd try.
 
-
-
+### attempt successful. now to understand pulling. made this chage to see if I can pull the file to see this change. goodluck to me!
 
 
 
