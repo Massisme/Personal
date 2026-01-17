@@ -91,7 +91,10 @@ shinyApp(ui = ui, server = server)
 ### Excellent, pull worked. I am slowly getting a hang of this. now, push this new lines in and then we want to make a change in git online.
 ### afterwards, I want to understand the push as a patch part. Good luck.
 
-###New change made for pulling! wil lbe using the patch thing to see how Rstudio interects with this. Goodluck to me.
+###New change made for pulling! wil lbe using the patch thing to see how Rstudio interacts with this. Goodluck to me.
+
+### I have gained new understanding. When a branch is plit, it whos up on the top left corner of the git window here. dropdown menu allows for 
+### main & the patch branch. I am making this change only in the patch to see if I have this change happen online on this branch only.
 
 
 
