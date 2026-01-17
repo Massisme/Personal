@@ -85,10 +85,16 @@ shinyApp(ui = ui, server = server)
 ### first push was commited. here is a new version with this comment added. to attempt another push to understand versions and control.
 ### first attempt didnt work, I think. 2nd try.
 
-### attempt successful. now to understand pulling. made this chage to see if I can pull the file to see this change. goodluck to me!
+### attempt successful. The mistake was after putting the commit message, we have to press push green arrow to send it to repository. 
+### now to understand pulling. made this chage to see if I can pull the file to see this change. goodluck to me!
 
 ### Excellent, pull worked. I am slowly getting a hang of this. now, push this new lines in and then we want to make a change in git online.
 ### afterwards, I want to understand the push as a patch part. Good luck.
+
+###New change made for pulling! wil lbe using the patch thing to see how Rstudio interacts with this. Goodluck to me.
+
+### I have gained new understanding. When a branch is plit, it whos up on the top left corner of the git window here. dropdown menu allows for 
+### main & the patch branch. I am making this change only in the patch to see if I have this change happen online on this branch only.
 
 
 
