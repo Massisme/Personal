@@ -83,6 +83,8 @@ shinyApp(ui = ui, server = server)
 
 
 ### first push was commited. here is a new version with this comment added. to attempt another push to understand versions and control.
+### first attempt didnt work, I think. 2nd try.
+
 
 
 
