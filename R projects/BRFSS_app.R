@@ -200,6 +200,12 @@ column(3, #takes upto 6 out of 12 columns
          selected = "Overall Health"
        )
 ),
+
+      checkboxInput(
+      inputId = "show_cl",
+      label = "Show Confidence Limits",
+      value = TRUE    # TRUE = checked by default
+      ),
 plotOutput("plot")
 ),
 )
@@ -216,31 +222,47 @@ server <- function(input, output) {
   
   output$table <- renderTable({
 # for ease of view, reduce the number of columns down by relevance.
-  columns_vis <- unique(c("Year", "Locationabbr", "Question", "Response" , "Data_value", "Break_Out" ,"Break_Out_Category"))
+  columns_vis <- unique(c("Year", "Locationabbr", "Question", "Response" , "Data_value", "Confidence_limit_Low" , "Confidence_limit_High", "Break_Out", "Break_Out_Category"))
 
   filtered_data()[ , columns_vis]
   })
 
 # let's put the reactive data for the plots
   plot_data <- reactive({
-    brfss_dat %>% filter(Year >= input$year_filter[1], Year <= input$year_filter[2], Locationabbr == input$state_filter, Break_Out_Category == input$bocat_filter, Topic == input$topic_filter,
-                         Response == "Good")
+    brfss_dat %>% filter(Year >= input$year_filter[1], Year <= input$year_filter[2], Locationabbr == input$state_filter,
+                         Break_Out_Category == input$bocat_filter, Topic == input$topic_filter
+                         )
   })
 # render the plot  
   output$plot <- renderPlot({
     data <- plot_data()
 
-    plot(data$Year, data$Data_value,
-         type = "b",
-         pch = 19,
-         col = "red",
-         lwd = 2,
-         xlab = "Year",
-         ylab = "prevalence (%)",
-         main = paste(input$topic_filter, "-response:Good"))
-    
-  })  
-  
+#There is an issue where there are no data (eg, FL in 2011), so we should include a check if there is any data,
+    if(nrow(data)==0) {
+      ggplot() + 
+        annotate("text", x = 1, y= 1,
+                 label = "No data available for selection") + 
+        theme_void()
+    } else {
+#create the ggplot      
+    ggplot(data, 
+           aes(x = Year, y = Data_value, color = Response , group = Response)) +
+# add the CI in ribbons
+{if(input$show_cl) geom_ribbon(aes(ymin = Confidence_limit_Low ,
+                        ymax = Confidence_limit_High),
+                    alpha = 0.2)} +
+           geom_line(linewidth  =1.1) +
+            geom_point(size=2.5) +
+             labs(
+               title = paste(input$topic_filter, "prevalence trends", "(", input$year_filter[1], "—", input$year_filter[2], ")"),
+               subtitle = paste(input$bocat_filter, "—", input$state_filter),
+               x = "Year",
+               y = "Prevalence (%)",
+               color = "Response"
+             ) +
+        facet_wrap(~ Break_Out, ncol=2)
+         }
+    })  
 }
 
 
@@ -271,7 +293,14 @@ shinyApp(ui = ui, server = server)
 # but then generate a plot for each response level for the question.
 
 # Had another idea, what if we just plot all the response levels in the same graphic, instead of one for each. although, showing CI might be problematic. 
-# Maybe we can create a way to select the option. if we can get one and both ready in time. 
+# Maybe we can create a way to select the option. if we can get one and both ready in time.
+# stopping here for today.
+# 1/18/2026 - 03.36
+
+# implemented plotting, include with a checkbox for CL visual. facetting to show breakout levels within BO categories.
+# additionally, all response levels are plotted in one line. Seems like a good place to take a break for tonight, but I do want to implment a 
+# heatmap visual (completed during the staging ground) instead of points though, a full fill of colour for each state.
+# 1/19/2026 - 01.40
 
 
 
