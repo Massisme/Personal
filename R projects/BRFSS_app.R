@@ -69,10 +69,10 @@ brfss_dat <- brfss %>% separate(GeoLocation,
 ui <- fluidPage(
   title = "BRFSS prevalence Explorer",
   h1("BRFSS Prevalence Data (2011 to present) Dataset Dashboard"),
-  h2("Prevalence Data Table"),
-
+  
+  # ================== DATA TABLES =========================
 # let's set up some dropdown menu to change the display data. Beginning with a smaller scale with fewer choices. I also want them spread horizontally. time to learn fluidRow() and column()
-
+  h2("Prevalence Data Table"),
 fluidRow(
   # year filter
     column(3, #takes upto 6 out of 12 columns
@@ -139,6 +139,8 @@ column(3, #takes upto 6 out of 12 columns
 ),
   tableOutput("table"),
 
+# ================== TREND CHARTS =========================
+  h2("Prevalence Trends visualisations"),
 fluidRow(
   column(3, #takes upto 6 out of 12 columns
        sliderInput(
@@ -208,6 +210,53 @@ column(3, #takes upto 6 out of 12 columns
       ),
 plotOutput("plot")
 ),
+
+# ================== CHOROPLETH MAPS=========================
+  h2("Prevalence Choropleth Map"),
+
+fluidRow(
+  # year filter
+  column(3, #takes upto 3 out of 12 columns
+         selectInput(
+           inputId = "year_map",
+           label = "Which Year?",
+           choices = c( "2024" = "2024", "2023" = "2023", "2022" = "2022", "2021" = "2021", "2020" = "2020",
+                        "2019" = "2019", "2018" = "2018", "2017" = "2017", "2016" = "2016", "2015" = "2015",
+                        "2014" = "2014", "2013" = "2013", "2012" = "2012", "2011" = "2011"
+           ),
+           selected = "2024"
+         )
+  ),
+  column(3, #takes upto 3 out of 12 columns
+         selectInput(
+           inputId = "topic_map",
+           label = "Select topic ",
+           choices = c( "Depression" = "Depression",
+                        "COPD" = "COPD",
+                        "Skin Cancer" = "Skin Cancer",
+                        "Diabetes" = "Diabetes",
+                        "High Blood Pressure" = "High Blood Pressure",
+                        "Cardiovascular Disease" = "Cardiovascular Disease" ,
+                        "Cholesterol High" = "Cholesterol High",
+                        "Smoker Status" = "Smoker Status",
+                        "Heavy Drinking" = "Heavy Drinking",
+                        "Overall Health" = "Overall Health"
+           ),
+           selected = "Overall Health"
+         )
+  ),
+  column(3, #takes upto 6 out of 12 columns
+         selectInput(
+           inputId = "response_map",
+           label = "Select response",
+           choices = c("placeholder01" = "ph1"
+           ),
+           selected = NULL
+         )
+  ),
+),
+plotOutput("map")
+
 )
 
 
@@ -246,7 +295,7 @@ server <- function(input, output) {
     } else {
 #create the ggplot      
     ggplot(data, 
-           aes(x = Year, y = Data_value, color = Response , group = Response)) +
+           aes(x = Year, y = Data_value, color = Response, fill = Response, group = Response)) +
 # add the CI in ribbons
 {if(input$show_cl) geom_ribbon(aes(ymin = Confidence_limit_Low ,
                         ymax = Confidence_limit_High),
@@ -262,8 +311,20 @@ server <- function(input, output) {
              ) +
         facet_wrap(~ Break_Out, ncol=2)
          }
-    })  
-}
+    })
+
+# set up the data for the choropleth map  
+  response_map <- brfss_dat %>% filter(Topic == input$topic_map) %>%  unique(Response)
+  
+  map_data <- reactive({
+    brfss_dat %>% filter(Year == input$year_map, Break_Out_Category == Overall,
+                         Topic == input$topic_map)
+    })
+  
+  }
+
+  
+
 
 
 # =========================== App Wrap ===================================================
