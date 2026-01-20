@@ -364,4 +364,8 @@ shinyApp(ui = ui, server = server)
 # 1/19/2026 - 01.40
 
 
-
+# Started on the map section. the UI section is done. The plan is to include options for Year, topic, and responses, with breakout category fixed at Overall.
+# one issue is on how to make the response dropdown list reactive to the topic. will need to think for a moment.
+# It is tricky since I may have to make the list in server then work it back into UI somehow. Unsure how to proceed. 
+# Maybe employ a full result to input work, as in make one plot, then expand back.
+# Taking a break here since I need to think 01/19/2026 - 23.15
