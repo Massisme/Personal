@@ -7,6 +7,9 @@
 library(shiny)
 library(tidyverse)
 library(DT)
+library(maps)
+library(sf)
+library(usmap)
 
 # Load data
 brfss<- read_csv("G:/Programming/BRFSS/Data-2024/2011 pervalence & trends/Behavioral_Risk_Factor_Surveillance_System_(BRFSS)_Prevalence_Data_(2011_to_present)_20260115.csv")
@@ -225,10 +228,9 @@ fluidRow(
                         "2014" = "2014", "2013" = "2013", "2012" = "2012", "2011" = "2011"
            ),
            selected = "2024"
-         )
-  ),
-  column(3, #takes upto 3 out of 12 columns
-         selectInput(
+         ),
+ 
+          selectInput(
            inputId = "topic_map",
            label = "Select topic ",
            choices = c( "Depression" = "Depression",
@@ -243,9 +245,8 @@ fluidRow(
                         "Overall Health" = "Overall Health"
            ),
            selected = "Overall Health"
-         )
-  ),
-  column(3, #takes upto 6 out of 12 columns
+         ),
+ 
          selectInput(
            inputId = "response_map",
            label = "Select response",
@@ -254,15 +255,16 @@ fluidRow(
            selected = NULL
          )
   ),
-),
+  column(10,
 plotOutput("map")
-
+),
+),
 )
 
 
 # =========================== SERVER level ================================================
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
 # set up a reactive data for the table display. we are filtering by the above inputs.  
   filtered_data <- reactive({
@@ -314,18 +316,58 @@ server <- function(input, output) {
     })
 
 # set up the data for the choropleth map  
-  response_map <- brfss_dat %>% filter(Topic == input$topic_map) %>%  unique(Response)
+  observeEvent(input$topic_map, {
+  # get unique response levels fro selected topic
+      responses <- brfss_dat %>% filter(Topic == input$topic_map) %>% 
+        pull(Response) %>% unique()
+      
+  updateSelectInput(session,
+                    inputId = "response_map",
+                    choices = responses,
+                    selected = responses[1]) #select the first response as default displayed   
+  })
   
-  map_data <- reactive({
-    brfss_dat %>% filter(Year == input$year_map, Break_Out_Category == Overall,
-                         Topic == input$topic_map)
+    map_data <- reactive({
+    brfss_dat %>% filter(Year == input$year_map, Break_Out_Category == "Overall",
+                         Topic == input$topic_map,
+                         Response == input$response_map,
+                         # We should filter out some extranuous locations in Locationabbr US, UW, GU, PR, VI
+                         !Locationabbr %in% c("US", "UW", "GU", "PR", "VI")
+                         )
     })
-  
+
+    
+    
+# Map portion
+    
+    output$map <- renderPlot({
+    data <- map_data()
+        if (nrow(data) == 0) {
+      ggplot() + 
+        annotate("text", x = 1, y= 1,
+                 label = "No data available for selection") + 
+        theme_void()
+    } else {
+      data <- data %>% rename(state = Locationabbr)
+      
+      plot_usmap(data = data, values = "Data_value", color = "black") +
+        scale_fill_continuous(low = "white",
+                              high = "darkred",
+                              name = "Prevalence (%)"
+                              ) +
+        labs(title = paste(input$topic_map, "prevalence Choropleth", input$year_map),
+             subtitle = paste("Breakout Category: Overall", "-", "responded:", input$response_map)
+              )+
+        theme(
+          legend.position = "left",        # Try: "right", "left", "top", "bottom"
+          legend.key.width = unit(0.75, "cm"),  # Adjust width
+          legend.key.height = unit(2, "cm") # Adjust height
+        )
+      }
+    })
   }
 
   
-
-
 
 # =========================== App Wrap ===================================================
 shinyApp(ui = ui, server = server)
@@ -369,3 +411,6 @@ shinyApp(ui = ui, server = server)
 # It is tricky since I may have to make the list in server then work it back into UI somehow. Unsure how to proceed. 
 # Maybe employ a full result to input work, as in make one plot, then expand back.
 # Taking a break here since I need to think 01/19/2026 - 23.15
+
+#map completed. changed the fluid row columns to accommodate the maps on the side. This should be the final version of
+# things I wanted on display. next would be polishing. maybe get some ideas. 01/ 24/2026 - 01.30 
