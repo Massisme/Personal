@@ -12,7 +12,8 @@ library(sf)
 library(usmap)
 
 # Load data
-brfss<- read_csv("G:/Programming/BRFSS/Data-2024/2011 pervalence & trends/Behavioral_Risk_Factor_Surveillance_System_(BRFSS)_Prevalence_Data_(2011_to_present)_20260115.csv")
+# brfss<- read_csv("G:/Programming/BRFSS/Data-2024/2011 pervalence & trends/Behavioral_Risk_Factor_Surveillance_System_(BRFSS)_Prevalence_Data_(2011_to_present)_20260115.csv")
+load("brfss_prevdat.RData")
 
 # Initial operations
 brfss_dat <- brfss %>% separate(GeoLocation,
